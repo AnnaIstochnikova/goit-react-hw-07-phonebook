@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getFilter, getUsers } from 'redux/selectors';
-import { addUsersFromLocalStorage, deleteUser } from 'redux/usersSlice';
+import { deleteContact, fetchContacts } from 'redux/operations';
 
 export const ContactList = () => {
   const usersFromStore = useSelector(getUsers);
@@ -14,39 +14,25 @@ export const ContactList = () => {
   );
   const dispatch = useDispatch();
 
-  const onDelete = contactId => {
-    dispatch(deleteUser(contactId));
+  const handleDelete = contactId => {
+    dispatch(deleteContact(contactId));
   };
 
   useEffect(() => {
-    try {
-      const contactsFromLocalStorage = localStorage.getItem('Contacts');
-      const data = JSON.parse(contactsFromLocalStorage);
-      if (data === null) {
-        localStorage.setItem('Contacts', JSON.stringify([]));
-      } else {
-        dispatch(addUsersFromLocalStorage(data));
-      }
-    } catch (error) {
-      console.error('Error ', error.message);
-    }
+    dispatch(fetchContacts());
   }, [dispatch]);
-
-  useEffect(() => {
-    localStorage.setItem('Contacts', JSON.stringify(usersFromStore));
-  }, [usersFromStore]);
 
   return (
     <ul>
       {filteredUsers.map(contact => {
-        const { name, phoneNumber, id } = contact;
+        const { name, phone, id } = contact;
         return (
           <li key={id}>
-            {name}: {phoneNumber}
+            {name}: {phone}
             <button
               className="button-delete"
               type="button"
-              onClick={() => onDelete(id)}
+              onClick={() => handleDelete(id)}
             >
               Delete
             </button>
