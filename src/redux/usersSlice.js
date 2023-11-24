@@ -1,34 +1,61 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { addContact, deleteContact, fetchContacts } from './operations';
 
 const initialState = {
   contacts: [],
   filter: '',
+  isLoading: false,
+  error: null,
 };
 
 const phonebookSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
-    addUser: (state, action) => {
-      state.contacts = [...state?.contacts, action.payload];
+    addFilter: (state, action) => {
+      state.filter = action.payload;
     },
-    deleteUser: (state, action) => {
-      state.contacts = [
-        ...state.contacts.filter(user => user.id !== action.payload),
-      ];
-    },
-    addFilter: {
-      reducer(state, action) {
-        state.filter = action.payload;
-      },
-    },
-    addUsersFromLocalStorage: (state, action) => {
-      state.contacts = action.payload;
-    },
+  },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchContacts.pending, state => {
+        state.isLoading = true;
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.contacts = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchContacts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.contacts = state.contacts.filter(
+          contact => contact.id !== action.payload.id
+        );
+        state.error = null;
+      })
+      .addCase(deleteContact.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
+      // .addCase(addContacts.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      .addCase(addContact.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.contacts.push(action.payload);
+        state.error = null;
+      })
+      .addCase(addContact.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-export const { addUser, addUsersFromLocalStorage, deleteUser, addFilter } =
-  phonebookSlice.actions;
+export const { addFilter } = phonebookSlice.actions;
 
 export const phonebookReducer = phonebookSlice.reducer;
