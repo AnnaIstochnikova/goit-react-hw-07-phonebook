@@ -2,17 +2,19 @@ import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { getFilter, getUsers } from 'redux/selectors';
+import { selectFilter, selectIsLoading, selectUsers } from 'redux/selectors';
 import { deleteContact, fetchContacts } from 'redux/operations';
+import Loader from '../Loader/loader';
 
 export const ContactList = () => {
-  const usersFromStore = useSelector(getUsers);
-  const filter = useSelector(getFilter);
+  const usersFromStore = useSelector(selectUsers);
+  const filter = useSelector(selectFilter);
+  const isLoading = useSelector(selectIsLoading);
+  const dispatch = useDispatch();
 
   const filteredUsers = usersFromStore.filter(user =>
     user.name.toUpperCase().includes(filter.toUpperCase())
   );
-  const dispatch = useDispatch();
 
   const handleDelete = contactId => {
     dispatch(deleteContact(contactId));
@@ -24,6 +26,7 @@ export const ContactList = () => {
 
   return (
     <ul>
+      {isLoading && <Loader />}
       {filteredUsers.map(contact => {
         const { name, phone, id } = contact;
         return (

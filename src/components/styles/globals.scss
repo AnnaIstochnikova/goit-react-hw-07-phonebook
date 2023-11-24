@@ -35,7 +35,16 @@ div {
 }
 
 ul {
+  display: flex;
+  flex-direction: column;
   margin: 0;
+
   padding-left: 0;
   list-style: none;
+}
+
+li {
+  display: flex;
+  padding-bottom: 10px;
+  justify-content: space-between;
 }
